@@ -1,1 +1,1076 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Morochos — Control</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  :root {
+    --black:#0A0A0A;--gray-1:#F7F7F7;--gray-2:#EFEFEF;--gray-3:#D8D8D8;
+    --gray-4:#9B9B9B;--gray-5:#555;--red:#D0021B;--red-soft:#FFF0F2;
+    --amber:#F5A623;--amber-soft:#FFFBF0;--green:#1A7A3F;--green-soft:#F0FAF4;
+    --blue:#0066FF;--blue-soft:#F0F5FF;--border:#E8E8E8;
+    --shadow:0 1px 4px rgba(0,0,0,0.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Inter',sans-serif;background:#F9F9F9;color:var(--black);min-height:100vh;}
 
+  nav{background:white;border-bottom:1px solid var(--border);padding:0 16px;
+    display:flex;align-items:center;justify-content:space-between;height:54px;
+    position:sticky;top:0;z-index:100;}
+  .nav-brand{display:flex;align-items:center;gap:8px;}
+  .nav-brand img{height:32px;width:32px;border-radius:50%;object-fit:cover;}
+  .nav-brand span{font-size:15px;font-weight:700;color:var(--black);}
+  .nav-tabs{display:flex;gap:4px;}
+  .nav-tab{background:transparent;border:1px solid var(--border);color:var(--gray-5);
+    padding:6px 12px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;}
+  .nav-tab.active{background:var(--black);border-color:var(--black);color:white;}
+
+  .page{display:none;padding:16px;max-width:640px;margin:0 auto;}
+  .page.active{display:block;}
+
+  .section-head{margin-bottom:16px;}
+  .section-head h2{font-size:20px;font-weight:800;color:var(--black);}
+  .section-head p{font-size:13px;color:var(--gray-4);margin-top:3px;}
+
+  .card{background:white;border:1px solid var(--border);border-radius:12px;padding:18px;box-shadow:var(--shadow);margin-bottom:12px;}
+
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:12px;font-weight:600;color:var(--gray-5);margin-bottom:5px;}
+  .req{color:var(--red);}
+  .form-control{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;
+    font-size:15px;font-family:inherit;color:var(--black);background:white;outline:none;-webkit-appearance:none;}
+  .form-control:focus{border-color:var(--black);}
+  select.form-control{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none' viewBox='0 0 24 24'%3E%3Cpath stroke='%23555' stroke-width='2' d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 10px center;padding-right:30px;}
+  textarea.form-control{resize:vertical;min-height:72px;}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+  /* AREA TAG */
+  .area-tag{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;
+    background:var(--gray-1);border:1px solid var(--border);border-radius:10px;
+    font-size:14px;font-weight:700;color:var(--black);margin-bottom:14px;}
+
+  /* CHIPS */
+  .chips{display:flex;flex-wrap:wrap;gap:7px;}
+  .chip{padding:7px 12px;border-radius:20px;border:1px solid var(--border);font-size:12px;
+    font-family:inherit;cursor:pointer;background:white;color:var(--gray-5);font-weight:500;}
+  .chip.selected{background:var(--black);border-color:var(--black);color:white;}
+
+  /* OTRO PRODUCTO */
+  .otro-wrap{margin-top:8px;display:none;}
+  .otro-wrap input{width:100%;padding:10px 12px;border:1.5px dashed var(--border);border-radius:8px;
+    font-size:14px;font-family:inherit;color:var(--black);background:white;outline:none;}
+  .otro-wrap input:focus{border-color:var(--black);}
+
+  .btn{padding:13px;border-radius:10px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;border:none;width:100%;}
+  .btn-black{background:var(--black);color:white;}
+  .btn-black:disabled{background:var(--gray-3);cursor:not-allowed;}
+  .btn-outline{background:white;border:1px solid var(--border);color:var(--gray-5);}
+  .btn-sm{padding:7px 14px;font-size:12px;border-radius:8px;width:auto;}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+    background:var(--black);color:white;padding:12px 20px;border-radius:30px;
+    font-size:13px;font-weight:600;z-index:999;transition:transform .3s;white-space:nowrap;}
+  .toast.show{transform:translateX(-50%) translateY(0);}
+
+  .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+  .stat-card{background:white;border:1px solid var(--border);border-radius:12px;padding:14px;}
+  .stat-label{font-size:11px;font-weight:600;color:var(--gray-4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;}
+  .stat-value{font-size:24px;font-weight:800;color:var(--black);line-height:1;}
+  .stat-sub{font-size:11px;color:var(--gray-4);margin-top:3px;}
+
+  .filter-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+  .fchip{padding:5px 11px;border-radius:20px;border:1px solid var(--border);font-size:12px;
+    font-family:inherit;cursor:pointer;background:white;color:var(--gray-5);font-weight:500;}
+  .fchip.active{background:var(--black);border-color:var(--black);color:white;}
+
+  .date-bar{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;}
+  .date-bar label{font-size:12px;font-weight:600;color:var(--gray-4);}
+
+  .badge{display:inline-block;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600;}
+  .badge-red{background:var(--red-soft);color:var(--red);}
+  .badge-amber{background:var(--amber-soft);color:#9A6000;}
+  .badge-blue{background:var(--blue-soft);color:var(--blue);}
+  .badge-green{background:var(--green-soft);color:var(--green);}
+  .badge-gray{background:var(--gray-1);color:var(--gray-5);}
+  .badge-purple{background:#F3E8FF;color:#6B21A8;}
+
+  .panel-tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:16px;}
+  .ptab{padding:9px 16px;font-size:13px;font-weight:600;color:var(--gray-4);background:none;
+    border:none;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-2px;}
+  .ptab.active{color:var(--black);border-bottom-color:var(--black);}
+
+  .rank-bar{margin-bottom:9px;}
+  .rank-label{display:flex;justify-content:space-between;font-size:12px;font-weight:600;margin-bottom:3px;}
+  .rank-label span{color:var(--gray-4);font-weight:400;}
+  .rank-track{background:var(--gray-2);border-radius:4px;height:6px;}
+  .rank-fill{height:100%;border-radius:4px;}
+
+  .hist-item{background:white;border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px;}
+  .hist-top{display:flex;justify-content:space-between;align-items:flex-start;}
+  .hist-name{font-size:14px;font-weight:700;color:var(--black);}
+  .hist-meta{font-size:12px;color:var(--gray-4);margin-top:2px;}
+  .hist-qty{font-size:16px;font-weight:700;text-align:right;}
+
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;align-items:flex-end;justify-content:center;}
+  .modal-overlay.open{display:flex;}
+  .modal-box{background:white;border-radius:20px 20px 0 0;padding:22px 18px 32px;width:100%;max-width:640px;}
+  .modal-title{font-size:17px;font-weight:800;color:var(--black);margin-bottom:8px;}
+  .modal-body{font-size:14px;color:var(--gray-5);margin-bottom:20px;line-height:1.6;}
+  .modal-footer{display:flex;gap:10px;}
+  .modal-footer .btn{flex:1;}
+
+  .empty{text-align:center;padding:32px 16px;color:var(--gray-4);}
+  .empty .icon{font-size:32px;margin-bottom:8px;}
+  .empty p{font-size:13px;}
+
+  @media(max-width:400px){
+    .field-row{grid-template-columns:1fr;}
+    .nav-tab{padding:5px 8px;font-size:11px;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">
+    <img src="logo_morochos.png" alt="Morochos">
+    <span>Morochos</span>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" id="tab-bajas" onclick="showPage('bajas')">Bajas</button>
+    <button class="nav-tab" id="tab-prod" onclick="showPage('prod')">Producción</button>
+    <button class="nav-tab" id="tab-clock" onclick="showPage('clock')">⏰ Turno</button>
+    <button class="nav-tab" id="tab-tips" onclick="showPage('tips')">💵 Tips</button>
+    <button class="nav-tab" id="tab-panel" onclick="pedirPIN()">Panel 🔒</button>
+  </div>
+</nav>
+
+<!-- ═══ BAJAS ═══ -->
+<div class="page active" id="page-bajas">
+  <div style="padding-top:10px">
+    <div class="section-head">
+      <h2>Registrar baja</h2>
+      <p>Selecciona el local y quién reporta.</p>
+    </div>
+    <div class="card">
+      <!-- Local -->
+      <div class="field">
+        <label>Local <span class="req">*</span></label>
+        <select id="b-local" class="form-control" onchange="onLocalChange('b')">
+          <option value="">— Seleccionar local —</option>
+          <option>Orange</option>
+          <option>West Orange</option>
+          <option>Facility</option>
+        </select>
+      </div>
+      <!-- Encargado -->
+      <div class="field" id="b-enc-field" style="display:none">
+        <label>Quién reporta <span class="req">*</span></label>
+        <select id="b-encargado" class="form-control" onchange="onEncargadoChange('b')">
+          <option value="">— Seleccionar —</option>
+        </select>
+      </div>
+      <!-- Area (auto) -->
+      <div id="b-area-wrap" style="display:none">
+        <div class="area-tag" id="b-area-tag"></div>
+      </div>
+      <!-- Formulario -->
+      <div id="b-form" style="display:none">
+        <div class="field">
+          <label>Producto <span class="req">*</span></label>
+          <select id="b-producto" class="form-control" onchange="onProductoChange('b')">
+            <option value="">— Seleccionar producto —</option>
+          </select>
+          <div class="otro-wrap" id="b-otro-wrap">
+            <input type="text" id="b-otro-txt" placeholder="Escribe el nombre del producto…"/>
+          </div>
+        </div>
+        <div class="field field-row">
+          <div>
+            <label>Cantidad <span class="req">*</span></label>
+            <input type="number" id="b-cantidad" class="form-control" placeholder="0" min="0" step="0.01"/>
+          </div>
+          <div>
+            <label>Unidad</label>
+            <select id="b-unidad" class="form-control">
+              <option>unidades</option><option>porciones</option><option>litros</option>
+              <option>ml</option><option>kg</option><option>gramos</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Motivo <span class="req">*</span></label>
+          <div class="chips" id="chips-motivo">
+            <button class="chip" data-val="Receta mal preparada" onclick="selChip(this,'motivo')">Receta mal hecha</button>
+            <button class="chip" data-val="Error pedido cliente" onclick="selChip(this,'motivo')">Error cliente</button>
+            <button class="chip" data-val="Error pedido empleado" onclick="selChip(this,'motivo')">Error empleado</button>
+            <button class="chip" data-val="Vencido / caducado" onclick="selChip(this,'motivo')">Vencido</button>
+            <button class="chip" data-val="Derrame / accidente" onclick="selChip(this,'motivo')">Derrame</button>
+            <button class="chip" data-val="Mala calidad" onclick="selChip(this,'motivo')">Mala calidad</button>
+            <button class="chip" data-val="Robo / faltante" onclick="selChip(this,'motivo')">Robo</button>
+            <button class="chip" data-val="Otro" onclick="selChip(this,'motivo')">Otro</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Observación</label>
+          <textarea id="b-obs" class="form-control" placeholder="Detalles adicionales…"></textarea>
+        </div>
+        <button class="btn btn-black" onclick="confirmarBaja()">Registrar baja</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PRODUCCIÓN ═══ -->
+<div class="page" id="page-prod">
+  <div style="padding-top:10px">
+    <div class="section-head">
+      <h2>Registrar producción</h2>
+      <p>¿Cuánto se elaboró en este turno?</p>
+    </div>
+    <div class="card">
+      <div class="field">
+        <label>Local <span class="req">*</span></label>
+        <select id="p-local" class="form-control" onchange="onLocalChange('p')">
+          <option value="">— Seleccionar local —</option>
+          <option>Orange</option>
+          <option>West Orange</option>
+          <option>Facility</option>
+        </select>
+      </div>
+      <div class="field" id="p-enc-field" style="display:none">
+        <label>Responsable <span class="req">*</span></label>
+        <select id="p-encargado" class="form-control" onchange="onEncargadoChange('p')">
+          <option value="">— Seleccionar —</option>
+        </select>
+      </div>
+      <div id="p-area-wrap" style="display:none">
+        <div class="area-tag" id="p-area-tag"></div>
+      </div>
+      <div id="p-form" style="display:none">
+        <div class="field">
+          <label>Turno <span class="req">*</span></label>
+          <div class="chips" id="chips-turno">
+            <button class="chip" data-val="Mañana" onclick="selChip(this,'turno')">☀️ Mañana</button>
+            <button class="chip" data-val="Tarde" onclick="selChip(this,'turno')">🌤 Tarde</button>
+            <button class="chip" data-val="Noche" onclick="selChip(this,'turno')">🌙 Noche</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Producto elaborado <span class="req">*</span></label>
+          <select id="p-producto" class="form-control" onchange="onProductoChange('p')">
+            <option value="">— Seleccionar producto —</option>
+          </select>
+          <div class="otro-wrap" id="p-otro-wrap">
+            <input type="text" id="p-otro-txt" placeholder="Escribe el nombre del producto…"/>
+          </div>
+        </div>
+        <div class="field field-row">
+          <div>
+            <label>Cantidad <span class="req">*</span></label>
+            <input type="number" id="p-cantidad" class="form-control" placeholder="0" min="1" step="1"/>
+          </div>
+          <div>
+            <label>Unidad</label>
+            <select id="p-unidad" class="form-control">
+              <option>unidades</option><option>porciones</option><option>litros</option><option>kg</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Observación</label>
+          <textarea id="p-obs" class="form-control" placeholder="Novedades del turno…"></textarea>
+        </div>
+        <button class="btn btn-black" onclick="confirmarProd()">Registrar producción</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══ CLOCK IN/OUT ═══ -->
+<div class="page" id="page-clock">
+  <div style="padding-top:10px">
+    <div class="section-head">
+      <h2>Marcar turno</h2>
+      <p>Ingresa tu código para registrar entrada o salida.</p>
+    </div>
+    <div class="card">
+      <div class="field">
+        <label>Local <span class="req">*</span></label>
+        <select id="ck-local" class="form-control" onchange="onClockLocal()">
+          <option value="">— Seleccionar local —</option>
+          <option>Orange</option>
+          <option>West Orange</option>
+          <option>Facility</option>
+        </select>
+      </div>
+      <div class="field" id="ck-codigo-field" style="display:none">
+        <label>Código de empleado <span class="req">*</span></label>
+        <input type="number" id="ck-codigo" class="form-control" placeholder="Ej: 1001"
+          oninput="buscarEmpleado()"/>
+      </div>
+      <!-- Empleado encontrado -->
+      <div id="ck-empleado-info" style="display:none;background:var(--gray-1);border-radius:10px;padding:14px;margin-bottom:14px;">
+        <div style="font-size:16px;font-weight:800;" id="ck-emp-nombre"></div>
+        <div style="font-size:12px;color:var(--gray-4);margin-top:2px;" id="ck-emp-area"></div>
+      </div>
+      <!-- Botones entrada/salida -->
+      <div id="ck-botones" style="display:none;gap:10px;display:none;">
+        <button class="btn btn-black" onclick="marcarTurno('entrada')" style="margin-bottom:10px;">
+          ✅ Marcar entrada
+        </button>
+        <button class="btn btn-outline" onclick="marcarTurno('salida')">
+          🚪 Marcar salida
+        </button>
+      </div>
+      <!-- Último registro -->
+      <div id="ck-ultimo" style="display:none;font-size:12px;color:var(--gray-4);margin-top:12px;text-align:center;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TIPS ═══ -->
+<div class="page" id="page-tips">
+  <div style="padding-top:10px">
+    <div class="section-head">
+      <h2>Registrar tips</h2>
+      <p>Total recaudado por el turno.</p>
+    </div>
+    <div class="card">
+      <div class="field">
+        <label>Local <span class="req">*</span></label>
+        <select id="tp-local" class="form-control">
+          <option value="">— Seleccionar local —</option>
+          <option>Orange</option>
+          <option>West Orange</option>
+          <option>Facility</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Encargado <span class="req">*</span></label>
+        <select id="tp-encargado" class="form-control">
+          <option value="">— Seleccionar —</option>
+          <option>Manuela González</option>
+          <option>Evelin</option>
+          <option>Yenifer Mayen</option>
+          <option>Staff 1 Café</option>
+          <option>Staff 2 Café</option>
+          <option>Staff 1 Bakery</option>
+          <option>Staff 2 Bakery</option>
+          <option>Encargado 1</option>
+          <option>Encargado 2</option>
+          <option>Encargado 3</option>
+          <option>Encargado 4</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Turno <span class="req">*</span></label>
+        <div class="chips" id="chips-turno-tips">
+          <button class="chip" data-val="Mañana" onclick="selChipTips(this)">☀️ Mañana</button>
+          <button class="chip" data-val="Tarde" onclick="selChipTips(this)">🌤 Tarde</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Total tips recaudados ($) <span class="req">*</span></label>
+        <input type="number" id="tp-total" class="form-control" placeholder="0.00" step="0.01" min="0"/>
+      </div>
+      <div class="field">
+        <label>Observación (opcional)</label>
+        <textarea id="tp-obs" class="form-control" placeholder="Notas del turno…"></textarea>
+      </div>
+      <button class="btn btn-black" onclick="confirmarTips()">Registrar tips</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PANEL ═══ -->
+<div class="page" id="page-panel">
+  <div style="padding-top:10px">
+    <h2 style="font-size:20px;font-weight:800;margin-bottom:16px;">Panel</h2>
+    <div class="panel-tabs">
+      <button class="ptab active" id="ptab-bajas" onclick="switchPanel('bajas')">📉 Bajas</button>
+      <button class="ptab" id="ptab-prod" onclick="switchPanel('prod')">🍳 Producción</button>
+    </div>
+
+    <!-- SUB BAJAS -->
+    <div id="sub-bajas">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <p id="b-subtitle" style="font-size:13px;color:var(--gray-4);"></p>
+        <button class="btn btn-outline btn-sm" onclick="exportCSV('bajas')">⬇ CSV</button>
+      </div>
+      <div class="filter-bar" id="f-local-b">
+        <button class="fchip active" data-v="todos" onclick="setF(this,'local-b')">Todos</button>
+        <button class="fchip" data-v="Orange" onclick="setF(this,'local-b')">Orange</button>
+        <button class="fchip" data-v="West Orange" onclick="setF(this,'local-b')">West Orange</button>
+        <button class="fchip" data-v="Facility" onclick="setF(this,'local-b')">Facility</button>
+      </div>
+      <div class="filter-bar" id="f-area-b">
+        <button class="fchip active" data-v="todos" onclick="setF(this,'area-b')">Todas</button>
+        <button class="fchip" data-v="Cocina" onclick="setF(this,'area-b')">Cocina</button>
+        <button class="fchip" data-v="Bebidas" onclick="setF(this,'area-b')">Bebidas</button>
+        <button class="fchip" data-v="Cafetería" onclick="setF(this,'area-b')">Cafetería</button>
+        <button class="fchip" data-v="Bakery" onclick="setF(this,'area-b')">Bakery</button>
+      </div>
+      <div class="date-bar">
+        <label>Ver:</label>
+        <select id="b-periodo" class="form-control" style="width:auto;" onchange="renderPanelBajas()">
+          <option value="todo">Todo</option><option value="hoy">Hoy</option>
+          <option value="semana">Esta semana</option><option value="mes">Este mes</option>
+          <option value="rango">Rango</option>
+        </select>
+        <div id="b-rango" style="display:none;gap:6px;align-items:center;">
+          <input type="date" id="b-desde" class="form-control" onchange="renderPanelBajas()">
+          <span>—</span>
+          <input type="date" id="b-hasta" class="form-control" onchange="renderPanelBajas()">
+        </div>
+      </div>
+      <div class="stats-grid" id="b-stats"></div>
+      <div class="card" id="b-alertas-card" style="display:none">
+        <div style="font-size:13px;font-weight:700;color:var(--red);margin-bottom:10px;">⚠️ Requiere atención</div>
+        <div id="b-alertas"></div>
+      </div>
+      <div class="card">
+        <div style="font-size:13px;font-weight:700;margin-bottom:12px;">Más frecuentes</div>
+        <div id="b-ranking"></div>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+          <div style="font-size:13px;font-weight:700;">Historial</div>
+          <div id="b-count" style="font-size:12px;color:var(--gray-4);"></div>
+        </div>
+        <div id="b-list"></div>
+      </div>
+    </div>
+
+    <!-- SUB PROD -->
+    <div id="sub-prod" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <p id="p-subtitle" style="font-size:13px;color:var(--gray-4);"></p>
+        <button class="btn btn-outline btn-sm" onclick="exportCSV('prod')">⬇ CSV</button>
+      </div>
+      <div class="filter-bar" id="f-local-p">
+        <button class="fchip active" data-v="todos" onclick="setF(this,'local-p')">Todos</button>
+        <button class="fchip" data-v="Orange" onclick="setF(this,'local-p')">Orange</button>
+        <button class="fchip" data-v="West Orange" onclick="setF(this,'local-p')">West Orange</button>
+        <button class="fchip" data-v="Facility" onclick="setF(this,'local-p')">Facility</button>
+      </div>
+      <div class="date-bar">
+        <label>Ver:</label>
+        <select id="p-periodo" class="form-control" style="width:auto;" onchange="renderPanelProd()">
+          <option value="todo">Todo</option><option value="hoy">Hoy</option>
+          <option value="semana">Esta semana</option><option value="mes">Este mes</option>
+          <option value="rango">Rango</option>
+        </select>
+        <div id="p-rango" style="display:none;gap:6px;align-items:center;">
+          <input type="date" id="p-desde" class="form-control" onchange="renderPanelProd()">
+          <span>—</span>
+          <input type="date" id="p-hasta" class="form-control" onchange="renderPanelProd()">
+        </div>
+      </div>
+      <div class="stats-grid" id="p-stats"></div>
+      <div class="card">
+        <div style="font-size:13px;font-weight:700;margin-bottom:12px;">Más producido</div>
+        <div id="p-ranking"></div>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+          <div style="font-size:13px;font-weight:700;">Historial</div>
+          <div id="p-count" style="font-size:12px;color:var(--gray-4);"></div>
+        </div>
+        <div id="p-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONFIRM -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-box">
+    <div class="modal-title" id="modal-title">Confirmar</div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn btn-black" id="modal-ok">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PIN -->
+<div class="modal-overlay" id="modal-pin">
+  <div class="modal-box" style="max-width:360px;">
+    <div class="modal-title">🔒 Acceso panel</div>
+    <div class="modal-body">Ingresa el PIN para continuar.</div>
+    <input type="password" id="pin-input" class="form-control" placeholder="••••" maxlength="6"
+      style="text-align:center;font-size:24px;letter-spacing:10px;margin-bottom:12px;"
+      oninput="if(this.value.length>=4)verificarPIN()"/>
+    <div id="pin-error" style="color:var(--red);font-size:12px;margin-bottom:12px;display:none;">PIN incorrecto.</div>
+    <button class="btn btn-outline" onclick="cerrarPIN()">Cancelar</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- PROXY -->
+<script>
+function showPage(id){window._showPage&&window._showPage(id);}
+function pedirPIN(){window._pedirPIN&&window._pedirPIN();}
+function verificarPIN(){window._verificarPIN&&window._verificarPIN();}
+function cerrarPIN(){window._cerrarPIN&&window._cerrarPIN();}
+function onLocalChange(t){window._onLocalChange&&window._onLocalChange(t);}
+function onEncargadoChange(t){window._onEncargadoChange&&window._onEncargadoChange(t);}
+function onProductoChange(t){window._onProductoChange&&window._onProductoChange(t);}
+function selChip(el,g){window._selChip&&window._selChip(el,g);}
+function confirmarBaja(){window._confirmarBaja&&window._confirmarBaja();}
+function confirmarProd(){window._confirmarProd&&window._confirmarProd();}
+function cerrarModal(){window._cerrarModal&&window._cerrarModal();}
+function switchPanel(t){window._switchPanel&&window._switchPanel(t);}
+function setF(el,g){window._setF&&window._setF(el,g);}
+function renderPanelBajas(){window._renderPanelBajas&&window._renderPanelBajas();}
+function renderPanelProd(){window._renderPanelProd&&window._renderPanelProd();}
+function exportCSV(t){window._exportCSV&&window._exportCSV(t);}
+function onClockLocal(){window._onClockLocal&&window._onClockLocal();}
+function buscarEmpleado(){window._buscarEmpleado&&window._buscarEmpleado();}
+function marcarTurno(t){window._marcarTurno&&window._marcarTurno(t);}
+function selChipTips(el){window._selChipTips&&window._selChipTips(el);}
+function confirmarTips(){window._confirmarTips&&window._confirmarTips();}
+function guardarTips(){window._guardarTips&&window._guardarTips();}
+function guardar(){window._guardar&&window._guardar();}
+</script>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, where, getDocs }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey:"AIzaSyDvL3-jot3HM1dVGZln85Dlnbf9QKeX5TE",
+  authDomain:"morochos-orange-bajas.firebaseapp.com",
+  projectId:"morochos-orange-bajas",
+  storageBucket:"morochos-orange-bajas.firebasestorage.app",
+  messagingSenderId:"246290449853",
+  appId:"1:246290449853:web:bd48951de1187689c83ed4"
+};
+
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
+const PIN='1234';
+let panelOK=false, bajas=[], producciones=[];
+let motivoSel='', turnoSel='', pendiente=null;
+let bLocal='todos', bArea='todos', pLocal='todos';
+
+// ── ESTRUCTURA: encargado → área → productos ──
+const STAFF = {
+  bajas: {
+    // COCINA
+    'Manuela González':  { area:'Cocina',    turno:'Mañana', icon:'🍳',
+      prods:['Empanada carne','Empanada pollo','Empanada verde','Bolón','Empanada de viento','Maduro con queso','Tortilla de tiesto','Tortilla de yuca'] },
+    'Turno tarde Cocina':{ area:'Cocina',    turno:'Tarde',  icon:'🍳',
+      prods:['Empanada carne','Empanada pollo','Empanada verde','Bolón','Empanada de viento','Maduro con queso','Tortilla de tiesto','Tortilla de yuca'] },
+    // CAFETERÍA 1
+    'Verónica Bermejo':  { area:'Cafetería', turno:'Mañana', icon:'☕',
+      prods:['Morocho 10oz','Morocho 16oz','Chocolate 10oz','Chocolate 16oz','Avena piña 10oz','Avena piña 16oz','Avena leche 10oz','Avena leche 16oz','Café filtrado','Morocho','Chocolate','Avena piña','Avena leche','Avena fría 16oz','Gelatina','Cheesecake','Tiramisú','Tamal','Humitas','Ensalada'] },
+    'Cristel Bonilla':   { area:'Cafetería', turno:'Tarde',  icon:'☕',
+      prods:['Morocho 10oz','Morocho 16oz','Chocolate 10oz','Chocolate 16oz','Avena piña 10oz','Avena piña 16oz','Avena leche 10oz','Avena leche 16oz','Café filtrado','Morocho','Chocolate','Avena piña','Avena leche','Avena fría 16oz','Gelatina','Cheesecake','Tiramisú','Tamal','Humitas','Ensalada'] },
+    // BEBIDAS (Café y Jugos)
+    'Beatriz':           { area:'Bebidas',   turno:'Mañana', icon:'🥤',
+      prods:['Jugo','Batido','Smoothie','Extracto','Manzana verde','Manzana roja','Pepino','Naranja','Piña picada','Jengibre','Espinaca','Kale','Capuchino','Latte','Moccacino'] },
+    'Yenifer Mayen':     { area:'Bebidas',   turno:'Tarde',  icon:'🥤',
+      prods:['Jugo','Batido','Smoothie','Extracto','Manzana verde','Manzana roja','Pepino','Naranja','Piña picada','Jengibre','Espinaca','Kale','Capuchino','Latte','Moccacino'] },
+    // BAKERY
+    'Abner Acosta':      { area:'Bakery',    turno:'Mañana', icon:'🥐',
+      prods:['Pan chola','Cacho con queso','Jamón y queso','Arepa','Pan de bono','Cachito','Pan de leche','Pan de chocolate','Sandwich jamón y queso','Muffin'] },
+    'Alexandra Morocho': { area:'Bakery',    turno:'Tarde',  icon:'🥐',
+      prods:['Pan chola','Cacho con queso','Jamón y queso','Arepa','Pan de bono','Cachito','Pan de leche','Pan de chocolate','Sandwich jamón y queso','Muffin'] },
+  },
+  prod: {
+    // COCINA
+    'Manuela González':  { area:'Cocina',    turno:'Mañana', icon:'🍳',
+      prods:['Morocho','Avena con piña','Chocolate','Avena con leche','Empanada carne','Empanada pollo','Empanada verde','Bolón','Empanada de viento','Maduro con queso','Tortilla de tiesto','Tortilla de yuca'] },
+    'Turno tarde Cocina':{ area:'Cocina',    turno:'Tarde',  icon:'🍳',
+      prods:['Morocho','Avena con piña','Chocolate','Avena con leche','Empanada carne','Empanada pollo','Empanada verde','Bolón','Empanada de viento','Maduro con queso','Tortilla de tiesto','Tortilla de yuca'] },
+    // CAFETERÍA 1
+    'Verónica Bermejo':  { area:'Cafetería', turno:'Mañana', icon:'☕',
+      prods:['Gelatina','Avena fría 16oz'] },
+    'Cristel Bonilla':   { area:'Cafetería', turno:'Tarde',  icon:'☕',
+      prods:['Gelatina','Avena fría 16oz'] },
+    // BEBIDAS
+    'Beatriz':           { area:'Bebidas',   turno:'Mañana', icon:'🥤',
+      prods:['Muesli','Granola con yogurt'] },
+    'Yenifer Mayen':     { area:'Bebidas',   turno:'Tarde',  icon:'🥤',
+      prods:['Muesli','Granola con yogurt'] },
+    // BAKERY
+    'Abner Acosta':      { area:'Bakery',    turno:'Mañana', icon:'🥐',
+      prods:['Sandwich jamón y queso','Lechuga','Pastel de piña','Pastel de fresa','Muffin','Arepa'] },
+    'Alexandra Morocho': { area:'Bakery',    turno:'Tarde',  icon:'🥐',
+      prods:['Sandwich jamón y queso','Lechuga','Pastel de piña','Pastel de fresa','Muffin','Arepa'] },
+  }
+};
+
+const AREA_BADGE={'Cocina':'badge-amber','Bebidas':'badge-blue','Cafetería':'badge-green','Bakery':'badge-purple'};
+const MOTIVO_BADGE={'Receta mal preparada':'badge-red','Error pedido cliente':'badge-amber','Error pedido empleado':'badge-amber','Vencido / caducado':'badge-amber','Derrame / accidente':'badge-blue','Mala calidad':'badge-gray','Robo / faltante':'badge-red','Otro':'badge-gray'};
+
+// ── FIRESTORE ──
+onSnapshot(query(collection(db,'bajas'),orderBy('fecha','desc')), snap=>{
+  bajas=snap.docs.map(d=>({id:d.id,...d.data()}));
+  if(document.getElementById('sub-bajas').style.display!=='none'&&document.getElementById('page-panel').classList.contains('active')) renderPanelBajas();
+});
+onSnapshot(query(collection(db,'producciones'),orderBy('fecha','desc')), snap=>{
+  producciones=snap.docs.map(d=>({id:d.id,...d.data()}));
+  if(document.getElementById('sub-prod').style.display!=='none'&&document.getElementById('page-panel').classList.contains('active')) renderPanelProd();
+});
+
+// ── HELPERS ──
+function getD(r){return r.fecha?.toDate?r.fecha.toDate():new Date(r.fecha||0);}
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
+function filtrarFecha(data,pid,did,hid){
+  const p=document.getElementById(pid)?.value||'todo';
+  const ahora=new Date();
+  if(p==='hoy')return data.filter(r=>getD(r).toDateString()===ahora.toDateString());
+  if(p==='semana'){const l=new Date(ahora);l.setDate(ahora.getDate()-ahora.getDay()+1);l.setHours(0,0,0,0);return data.filter(r=>getD(r)>=l);}
+  if(p==='mes')return data.filter(r=>{const d=getD(r);return d.getMonth()===ahora.getMonth()&&d.getFullYear()===ahora.getFullYear();});
+  if(p==='rango'){
+    const desde=document.getElementById(did)?.value?new Date(document.getElementById(did).value+'T00:00:00'):null;
+    const hasta=document.getElementById(hid)?.value?new Date(document.getElementById(hid).value+'T23:59:59'):null;
+    return data.filter(r=>{const d=getD(r);return(!desde||d>=desde)&&(!hasta||d<=hasta);});
+  }
+  return data;
+}
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  const map={bajas:'tab-bajas',prod:'tab-prod',clock:'tab-clock',tips:'tab-tips',panel:'tab-panel'};
+  document.getElementById(map[id])?.classList.add('active');
+  if(id==='panel') renderPanelBajas();
+}
+
+// ── LOCAL → ENCARGADO ──
+function onLocalChange(t){
+  const local=document.getElementById(t+'-local').value;
+  const encSel=document.getElementById(t+'-encargado');
+  const staffMap=STAFF[t==='b'?'bajas':'prod'];
+  const nombres=Object.keys(staffMap);
+  encSel.innerHTML='<option value="">— Seleccionar —</option>'+nombres.map(n=>`<option>${n}</option>`).join('');
+  document.getElementById(t+'-enc-field').style.display=local?'block':'none';
+  document.getElementById(t+'-area-wrap').style.display='none';
+  document.getElementById(t+'-form').style.display='none';
+  if(t==='b'){motivoSel='';document.querySelectorAll('#chips-motivo .chip').forEach(c=>c.classList.remove('selected'));}
+  else{turnoSel='';document.querySelectorAll('#chips-turno .chip').forEach(c=>c.classList.remove('selected'));}
+}
+
+// ── ENCARGADO → ÁREA + PRODUCTOS ──
+function onEncargadoChange(t){
+  const enc=document.getElementById(t+'-encargado').value;
+  const staffMap=STAFF[t==='b'?'bajas':'prod'];
+  const info=staffMap[enc];
+  if(!info){document.getElementById(t+'-area-wrap').style.display='none';document.getElementById(t+'-form').style.display='none';return;}
+
+  // Mostrar área
+  document.getElementById(t+'-area-tag').innerHTML=`${info.icon} <span>${info.area}</span>${info.turno ? `<span style='font-size:11px;color:var(--gray-4);margin-left:8px;font-weight:500;'>${info.turno === 'Mañana' ? '☀️ Mañana' : '🌤 Tarde'}</span>` : ''}`;
+  document.getElementById(t+'-area-wrap').style.display='block';
+
+  // Cargar productos
+  const sel=document.getElementById(t+'-producto');
+  sel.innerHTML='<option value="">— Seleccionar producto —</option>'+
+    info.prods.map(p=>`<option>${p}</option>`).join('')+
+    '<option value="__otro__">✏️ Otro (escribir)...</option>';
+  document.getElementById(t+'-otro-wrap').style.display='none';
+  if(t==='b'){document.getElementById('b-otro-txt').value='';}
+  else{document.getElementById('p-otro-txt').value='';}
+  document.getElementById(t+'-form').style.display='block';
+}
+
+function onProductoChange(t){
+  const val=document.getElementById(t+'-producto').value;
+  document.getElementById(t+'-otro-wrap').style.display=val==='__otro__'?'block':'none';
+}
+
+function getProducto(t){
+  const val=document.getElementById(t+'-producto').value;
+  if(val==='__otro__') return document.getElementById(t+'-otro-txt').value.trim();
+  return val;
+}
+
+function selChip(el,g){
+  document.querySelectorAll(`#chips-${g} .chip`).forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  if(g==='motivo') motivoSel=el.dataset.val;
+  if(g==='turno') turnoSel=el.dataset.val;
+}
+
+// ── CONFIRMAR BAJA ──
+function confirmarBaja(){
+  const local=document.getElementById('b-local').value;
+  const enc=document.getElementById('b-encargado').value;
+  const prod=getProducto('b');
+  const cant=parseFloat(document.getElementById('b-cantidad').value);
+  const unid=document.getElementById('b-unidad').value;
+  const obs=document.getElementById('b-obs').value.trim();
+  const area=STAFF.bajas[enc]?.area||'';
+  if(!local||!enc||!prod||!cant||!motivoSel){showToast('⚠️ Completa todos los campos');return;}
+  pendiente={tipo:'baja',local,enc,area,prod,cant,unid,motivo:motivoSel,obs};
+  document.getElementById('modal-title').textContent='Confirmar baja';
+  document.getElementById('modal-body').innerHTML=
+    `<b>${prod}</b> — ${cant} ${unid}<br>Motivo: ${motivoSel}<br>${area} · ${local}<br>Reporta: ${enc}`;
+  document.getElementById('modal-ok').setAttribute('onclick','guardar()');
+  document.getElementById('modal').classList.add('open');
+}
+
+// ── CONFIRMAR PRODUCCIÓN ──
+function confirmarProd(){
+  const local=document.getElementById('p-local').value;
+  const enc=document.getElementById('p-encargado').value;
+  const prod=getProducto('p');
+  const cant=parseFloat(document.getElementById('p-cantidad').value);
+  const unid=document.getElementById('p-unidad').value;
+  const obs=document.getElementById('p-obs').value.trim();
+  const area=STAFF.prod[enc]?.area||'';
+  if(!local||!enc||!prod||!cant||!turnoSel){showToast('⚠️ Completa todos los campos');return;}
+  pendiente={tipo:'prod',local,enc,area,prod,cant,unid,turno:turnoSel,obs};
+  document.getElementById('modal-title').textContent='Confirmar producción';
+  document.getElementById('modal-body').innerHTML=
+    `<b>${prod}</b> — ${cant} ${unid}<br>Turno: ${turnoSel}<br>${area} · ${local}<br>Responsable: ${enc}`;
+  document.getElementById('modal-ok').setAttribute('onclick','guardar()');
+  document.getElementById('modal').classList.add('open');
+}
+
+async function guardar(){
+  if(!pendiente)return;
+  const btn=document.getElementById('modal-ok');
+  btn.disabled=true;btn.textContent='Guardando…';
+  try{
+    const col=pendiente.tipo==='baja'?'bajas':'producciones';
+    await addDoc(collection(db,col),{...pendiente,fecha:serverTimestamp()});
+    cerrarModal();
+    if(pendiente.tipo==='baja')resetBaja();else resetProd();
+    showToast(pendiente.tipo==='baja'?'✅ Baja registrada':'✅ Producción registrada');
+  }catch(e){showToast('❌ Error. Revisa conexión.');console.error(e);}
+  btn.disabled=false;btn.textContent='Confirmar';
+  pendiente=null;
+}
+
+function cerrarModal(){document.getElementById('modal').classList.remove('open');pendiente=null;}
+
+function resetBaja(){
+  ['b-local','b-encargado','b-producto','b-cantidad','b-obs','b-otro-txt'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('b-unidad').value='unidades';
+  document.getElementById('b-enc-field').style.display='none';
+  document.getElementById('b-area-wrap').style.display='none';
+  document.getElementById('b-form').style.display='none';
+  document.getElementById('b-otro-wrap').style.display='none';
+  document.querySelectorAll('#chips-motivo .chip').forEach(c=>c.classList.remove('selected'));
+  motivoSel='';
+}
+
+function resetProd(){
+  ['p-local','p-encargado','p-producto','p-cantidad','p-obs','p-otro-txt'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('p-unidad').value='unidades';
+  document.getElementById('p-enc-field').style.display='none';
+  document.getElementById('p-area-wrap').style.display='none';
+  document.getElementById('p-form').style.display='none';
+  document.getElementById('p-otro-wrap').style.display='none';
+  document.querySelectorAll('#chips-turno .chip').forEach(c=>c.classList.remove('selected'));
+  turnoSel='';
+}
+
+// ── PIN ──
+function pedirPIN(){
+  if(panelOK){showPage('panel');return;}
+  document.getElementById('pin-input').value='';
+  document.getElementById('pin-error').style.display='none';
+  document.getElementById('modal-pin').classList.add('open');
+  setTimeout(()=>document.getElementById('pin-input').focus(),100);
+}
+function verificarPIN(){
+  const v=document.getElementById('pin-input').value;
+  if(v===PIN){panelOK=true;cerrarPIN();showPage('panel');}
+  else if(v.length>=4){document.getElementById('pin-error').style.display='block';document.getElementById('pin-input').value='';}
+}
+function cerrarPIN(){document.getElementById('modal-pin').classList.remove('open');}
+
+// ── PANEL ──
+function switchPanel(tab){
+  document.getElementById('sub-bajas').style.display=tab==='bajas'?'block':'none';
+  document.getElementById('sub-prod').style.display=tab==='prod'?'block':'none';
+  document.getElementById('ptab-bajas').classList.toggle('active',tab==='bajas');
+  document.getElementById('ptab-prod').classList.toggle('active',tab==='prod');
+  if(tab==='bajas')renderPanelBajas();else renderPanelProd();
+}
+
+function setF(el,g){
+  document.querySelectorAll(`#f-${g} .fchip`).forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  if(g==='local-b'){bLocal=el.dataset.v;renderPanelBajas();}
+  if(g==='area-b'){bArea=el.dataset.v;renderPanelBajas();}
+  if(g==='local-p'){pLocal=el.dataset.v;renderPanelProd();}
+}
+
+function renderPanelBajas(){
+  const periodo=document.getElementById('b-periodo').value;
+  document.getElementById('b-rango').style.display=periodo==='rango'?'flex':'none';
+  let data=[...bajas];
+  if(bLocal!=='todos')data=data.filter(b=>b.local===bLocal);
+  if(bArea!=='todos')data=data.filter(b=>b.area===bArea);
+  data=filtrarFecha(data,'b-periodo','b-desde','b-hasta');
+
+  const hoy=new Date().toDateString();
+  const hoyN=data.filter(b=>getD(b).toDateString()===hoy).length;
+  const byM={};data.forEach(b=>{byM[b.motivo]=(byM[b.motivo]||0)+1;});
+  const topM=Object.entries(byM).sort((a,b)=>b[1]-a[1])[0];
+
+  document.getElementById('b-subtitle').textContent=`${data.length} registros`;
+  document.getElementById('b-stats').innerHTML=`
+    <div class="stat-card"><div class="stat-label">Total bajas</div><div class="stat-value">${data.length}</div><div class="stat-sub">en el período</div></div>
+    <div class="stat-card"><div class="stat-label">Hoy</div><div class="stat-value">${hoyN}</div><div class="stat-sub">${new Date().toLocaleDateString('es-EC',{weekday:'short',day:'numeric',month:'short'})}</div></div>
+    <div class="stat-card"><div class="stat-label">Causa frecuente</div><div class="stat-value" style="font-size:13px;line-height:1.3;">${topM?topM[0]:'—'}</div><div class="stat-sub">${topM?topM[1]+' veces':''}</div></div>
+    <div class="stat-card"><div class="stat-label">Productos únicos</div><div class="stat-value">${new Set(data.map(b=>b.prod)).size}</div><div class="stat-sub">con al menos 1 baja</div></div>`;
+
+  const porProd={};
+  data.filter(b=>b.motivo==='Receta mal preparada').forEach(b=>{porProd[b.prod]=(porProd[b.prod]||0)+1;});
+  const alertas=Object.entries(porProd).filter(([,v])=>v>=2);
+  document.getElementById('b-alertas-card').style.display=alertas.length?'block':'none';
+  document.getElementById('b-alertas').innerHTML=alertas.map(([k,v])=>
+    `<div style="padding:8px;background:var(--red-soft);border-radius:8px;margin-bottom:6px;font-size:13px;color:var(--red);font-weight:600;">"${k}" — ${v} bajas por receta</div>`).join('');
+
+  const pRank={};data.forEach(b=>{pRank[b.prod]=(pRank[b.prod]||0)+b.cant;});
+  const sorted=Object.entries(pRank).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const mx=sorted[0]?.[1]||1;
+  document.getElementById('b-ranking').innerHTML=sorted.length
+    ?sorted.map(([p,t])=>`<div class="rank-bar"><div class="rank-label">${p}<span>${t}</span></div>
+      <div class="rank-track"><div class="rank-fill" style="width:${(t/mx*100).toFixed(0)}%;background:var(--red);"></div></div></div>`).join('')
+    :'<div class="empty"><p>Sin datos aún.</p></div>';
+
+  document.getElementById('b-count').textContent=data.length+' registros';
+  document.getElementById('b-list').innerHTML=data.length
+    ?data.map(b=>{
+      const f=getD(b).toLocaleDateString('es-EC',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+      return `<div class="hist-item"><div class="hist-top">
+        <div><div class="hist-name">${b.prod}</div>
+        <div class="hist-meta">${f} · ${b.enc}</div>
+        <div style="margin-top:5px;display:flex;gap:5px;flex-wrap:wrap;">
+          <span class="badge ${AREA_BADGE[b.area]||'badge-gray'}">${b.area}</span>
+          <span class="badge badge-gray">${b.local}</span>
+          <span class="badge ${MOTIVO_BADGE[b.motivo]||'badge-gray'}">${b.motivo}</span>
+        </div>
+        ${b.obs?`<div style="font-size:12px;color:var(--gray-4);margin-top:4px;">${b.obs}</div>`:''}</div>
+        <div class="hist-right"><div class="hist-qty" style="color:var(--red);">${b.cant}</div>
+        <div style="font-size:11px;color:var(--gray-4);">${b.unid}</div></div>
+      </div></div>`;}).join('')
+    :'<div class="empty"><div class="icon">📋</div><p>Sin registros en este período.</p></div>';
+}
+
+function renderPanelProd(){
+  const periodo=document.getElementById('p-periodo').value;
+  document.getElementById('p-rango').style.display=periodo==='rango'?'flex':'none';
+  let data=[...producciones];
+  if(pLocal!=='todos')data=data.filter(p=>p.local===pLocal);
+  data=filtrarFecha(data,'p-periodo','p-desde','p-hasta');
+
+  const hoy=new Date().toDateString();
+  const hoyN=data.filter(p=>getD(p).toDateString()===hoy).length;
+  const total=data.reduce((s,p)=>s+(p.cant||0),0);
+
+  document.getElementById('p-subtitle').textContent=`${data.length} registros`;
+  document.getElementById('p-stats').innerHTML=`
+    <div class="stat-card"><div class="stat-label">Registros</div><div class="stat-value">${data.length}</div><div class="stat-sub">en el período</div></div>
+    <div class="stat-card"><div class="stat-label">Unidades totales</div><div class="stat-value">${total}</div><div class="stat-sub">producidas</div></div>
+    <div class="stat-card"><div class="stat-label">Hoy</div><div class="stat-value">${hoyN}</div><div class="stat-sub">${new Date().toLocaleDateString('es-EC',{weekday:'short',day:'numeric',month:'short'})}</div></div>
+    <div class="stat-card"><div class="stat-label">Productos únicos</div><div class="stat-value">${new Set(data.map(p=>p.prod)).size}</div><div class="stat-sub">elaborados</div></div>`;
+
+  const pRank={};data.forEach(p=>{pRank[p.prod]=(pRank[p.prod]||0)+p.cant;});
+  const sorted=Object.entries(pRank).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const mx=sorted[0]?.[1]||1;
+  document.getElementById('p-ranking').innerHTML=sorted.length
+    ?sorted.map(([p,t])=>`<div class="rank-bar"><div class="rank-label">${p}<span>${t}</span></div>
+      <div class="rank-track"><div class="rank-fill" style="width:${(t/mx*100).toFixed(0)}%;background:var(--green);"></div></div></div>`).join('')
+    :'<div class="empty"><p>Sin datos aún.</p></div>';
+
+  document.getElementById('p-count').textContent=data.length+' registros';
+  document.getElementById('p-list').innerHTML=data.length
+    ?data.map(p=>{
+      const f=getD(p).toLocaleDateString('es-EC',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+      const tc=p.turno==='Mañana'?'badge-amber':p.turno==='Tarde'?'badge-blue':'badge-gray';
+      return `<div class="hist-item"><div class="hist-top">
+        <div><div class="hist-name">${p.prod}</div>
+        <div class="hist-meta">${f} · ${p.enc}</div>
+        <div style="margin-top:5px;display:flex;gap:5px;flex-wrap:wrap;">
+          <span class="badge badge-amber">${p.area}</span>
+          <span class="badge badge-gray">${p.local}</span>
+          <span class="badge ${tc}">${p.turno}</span>
+        </div>
+        ${p.obs?`<div style="font-size:12px;color:var(--gray-4);margin-top:4px;">${p.obs}</div>`:''}</div>
+        <div class="hist-right"><div class="hist-qty" style="color:var(--green);">${p.cant}</div>
+        <div style="font-size:11px;color:var(--gray-4);">${p.unid}</div></div>
+      </div></div>`;}).join('')
+    :'<div class="empty"><div class="icon">🍳</div><p>Sin registros en este período.</p></div>';
+}
+
+function exportCSV(tipo){
+  let data=tipo==='bajas'
+    ?[...bajas].filter(b=>bLocal==='todos'||b.local===bLocal).filter(b=>bArea==='todos'||b.area===bArea)
+    :[...producciones].filter(p=>pLocal==='todos'||p.local===pLocal);
+  data=filtrarFecha(data,tipo==='bajas'?'b-periodo':'p-periodo',tipo==='bajas'?'b-desde':'p-desde',tipo==='bajas'?'b-hasta':'p-hasta');
+  if(!data.length){showToast('No hay datos');return;}
+  const h=tipo==='bajas'
+    ?['Fecha','Local','Área','Producto','Cantidad','Unidad','Motivo','Encargado','Observación']
+    :['Fecha','Local','Área','Producto','Cantidad','Unidad','Turno','Responsable','Observación'];
+  const rows=data.map(r=>{
+    const f=getD(r).toLocaleString('es-EC');
+    return(tipo==='bajas'
+      ?[f,r.local,r.area,r.prod,r.cant,r.unid,r.motivo,r.enc,r.obs||'']
+      :[f,r.local,r.area,r.prod,r.cant,r.unid,r.turno,r.enc,r.obs||''])
+      .map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',');
+  });
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([[h.join(','),...rows].join('\n')],{type:'text/csv;charset=utf-8;'}));
+  a.download=`${tipo}-morochos-${new Date().toISOString().slice(0,10)}.csv`;a.click();
+}
+
+
+// ── CLOCK IN/OUT ──
+let empleados = [];
+let clockEmpleado = null;
+let turnoTipsSel = '';
+
+onSnapshot(query(collection(db,'mg_empleados'),orderBy('nombre')), snap=>{
+  empleados = snap.docs.map(d=>({id:d.id,...d.data()}));
+});
+
+function onClockLocal(){
+  const local = document.getElementById('ck-local').value;
+  document.getElementById('ck-codigo-field').style.display = local ? 'block' : 'none';
+  document.getElementById('ck-empleado-info').style.display = 'none';
+  document.getElementById('ck-botones').style.display = 'none';
+  document.getElementById('ck-ultimo').style.display = 'none';
+  document.getElementById('ck-codigo').value = '';
+  clockEmpleado = null;
+}
+
+function buscarEmpleado(){
+  const codigo = document.getElementById('ck-codigo').value.trim();
+  const local = document.getElementById('ck-local').value;
+  if(codigo.length < 3) {
+    document.getElementById('ck-empleado-info').style.display = 'none';
+    document.getElementById('ck-botones').style.display = 'none';
+    return;
+  }
+  const emp = empleados.find(e => e.codigo === codigo && e.local === local);
+  if(emp){
+    clockEmpleado = emp;
+    document.getElementById('ck-emp-nombre').textContent = emp.nombre;
+    document.getElementById('ck-emp-area').textContent = emp.area + ' · ' + emp.local;
+    document.getElementById('ck-empleado-info').style.display = 'block';
+    document.getElementById('ck-botones').style.display = 'flex';
+    document.getElementById('ck-botones').style.flexDirection = 'column';
+    // Check last record
+    checkUltimoRegistro(emp);
+  } else if(codigo.length >= 4){
+    clockEmpleado = null;
+    document.getElementById('ck-empleado-info').style.display = 'none';
+    document.getElementById('ck-botones').style.display = 'none';
+    showToast('⚠️ Código no encontrado en este local');
+  }
+}
+
+async function checkUltimoRegistro(emp){
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const snap = await getDocs(query(
+    collection(db,'clock_records'),
+    where('empId','==',emp.id),
+    orderBy('fecha','desc')
+  ));
+  if(!snap.empty){
+    const ultimo = snap.docs[0].data();
+    const fecha = ultimo.fecha?.toDate ? ultimo.fecha.toDate() : new Date(ultimo.fecha);
+    const tipo = ultimo.tipo === 'entrada' ? '✅ Entrada' : '🚪 Salida';
+    document.getElementById('ck-ultimo').style.display = 'block';
+    document.getElementById('ck-ultimo').textContent =
+      'Último registro: ' + tipo + ' · ' + fecha.toLocaleTimeString('es-EC',{hour:'2-digit',minute:'2-digit'});
+  }
+}
+
+async function marcarTurno(tipo){
+  if(!clockEmpleado){ showToast('⚠️ Selecciona un empleado'); return; }
+  try{
+    await addDoc(collection(db,'clock_records'),{
+      empId: clockEmpleado.id,
+      nombre: clockEmpleado.nombre,
+      local: clockEmpleado.local,
+      area: clockEmpleado.area,
+      codigo: clockEmpleado.codigo,
+      tipo, fecha: serverTimestamp()
+    });
+    showToast(tipo==='entrada' ? '✅ Entrada registrada' : '🚪 Salida registrada');
+    // Reset
+    document.getElementById('ck-local').value = '';
+    document.getElementById('ck-codigo').value = '';
+    document.getElementById('ck-codigo-field').style.display = 'none';
+    document.getElementById('ck-empleado-info').style.display = 'none';
+    document.getElementById('ck-botones').style.display = 'none';
+    document.getElementById('ck-ultimo').style.display = 'none';
+    clockEmpleado = null;
+  } catch(e){ showToast('❌ Error. Revisa conexión.'); console.error(e); }
+}
+
+// ── TIPS ──
+function selChipTips(el){
+  document.querySelectorAll('#chips-turno-tips .chip').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  turnoTipsSel = el.dataset.val;
+}
+
+function confirmarTips(){
+  const local = document.getElementById('tp-local').value;
+  const enc = document.getElementById('tp-encargado').value;
+  const total = parseFloat(document.getElementById('tp-total').value);
+  const obs = document.getElementById('tp-obs').value.trim();
+  if(!local||!enc||!turnoTipsSel||!total){ showToast('⚠️ Completa todos los campos'); return; }
+  pendiente = {tipo:'tips', local, enc, turno:turnoTipsSel, total, obs};
+  document.getElementById('modal-title').textContent = 'Confirmar tips';
+  document.getElementById('modal-body').innerHTML =
+    `Total: <b>$${total.toFixed(2)}</b><br>Turno: ${turnoTipsSel}<br>Local: ${local}<br>Encargado: ${enc}`;
+  document.getElementById('modal-ok').setAttribute('onclick','guardarTips()');
+  document.getElementById('modal').classList.add('open');
+}
+
+async function guardarTips(){
+  if(!pendiente) return;
+  const btn = document.getElementById('modal-ok');
+  btn.disabled=true; btn.textContent='Guardando…';
+  try{
+    await addDoc(collection(db,'tips'),{
+      local: pendiente.local, enc: pendiente.enc,
+      turno: pendiente.turno, total: pendiente.total,
+      obs: pendiente.obs, fecha: serverTimestamp()
+    });
+    cerrarModal();
+    ['tp-local','tp-encargado','tp-total','tp-obs'].forEach(id=>document.getElementById(id).value='');
+    document.querySelectorAll('#chips-turno-tips .chip').forEach(c=>c.classList.remove('selected'));
+    turnoTipsSel='';
+    showToast('✅ Tips registrados');
+  } catch(e){ showToast('❌ Error. Revisa conexión.'); console.error(e); }
+  btn.disabled=false; btn.textContent='Confirmar';
+  pendiente=null;
+}
+
+// ── EXPONER ──
+window._showPage=showPage;window._pedirPIN=pedirPIN;window._verificarPIN=verificarPIN;
+window._cerrarPIN=cerrarPIN;window._onLocalChange=onLocalChange;window._onEncargadoChange=onEncargadoChange;
+window._onProductoChange=onProductoChange;window._selChip=selChip;
+window._confirmarBaja=confirmarBaja;window._confirmarProd=confirmarProd;
+window._cerrarModal=cerrarModal;window._switchPanel=switchPanel;window._setF=setF;
+window._renderPanelBajas=renderPanelBajas;window._renderPanelProd=renderPanelProd;
+window._exportCSV=exportCSV;
+window._onClockLocal=onClockLocal;window._buscarEmpleado=buscarEmpleado;
+window._marcarTurno=marcarTurno;window._selChipTips=selChipTips;
+window._confirmarTips=confirmarTips;window._guardarTips=guardarTips;
+window._guardar=guardar;
+</script>
+</body>
+</html>
