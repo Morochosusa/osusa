@@ -1210,17 +1210,30 @@ function onLocalChange(t){
 function onEncargadoChange(t){
   const enc=document.getElementById(t+'-encargado').value;
   const staffMap=STAFF[t==='b'?'bajas':'prod'];
-  const info=staffMap[enc];
-  if(!info){document.getElementById(t+'-area-wrap').style.display='none';document.getElementById(t+'-form').style.display='none';return;}
+  // Primero busca en STAFF hardcodeado; si no, usa datos de Firestore (ENCARGADOS)
+  const info=staffMap[enc]||null;
+  const encInfo=ENCARGADOS[enc]||null;
 
-  // Mostrar área
-  document.getElementById(t+'-area-tag').innerHTML=`${info.icon} <span>${info.area}</span>${info.turno ? `<span style='font-size:11px;color:var(--gray-4);margin-left:8px;font-weight:500;'>${info.turno === 'Mañana' ? '☀️ Mañana' : '🌤 Tarde'}</span>` : ''}`;
+  if(!info&&!encInfo){
+    document.getElementById(t+'-area-wrap').style.display='none';
+    document.getElementById(t+'-form').style.display='none';
+    return;
+  }
+
+  // Mostrar área — usa STAFF si existe, si no muestra rol de Firestore
+  if(info){
+    document.getElementById(t+'-area-tag').innerHTML=`${info.icon} <span>${info.area}</span>${info.turno ? `<span style='font-size:11px;color:var(--gray-4);margin-left:8px;font-weight:500;'>${info.turno === 'Mañana' ? '☀️ Mañana' : '🌤 Tarde'}</span>` : ''}`;
+  } else {
+    const rol=encInfo.rol||'Encargado';
+    document.getElementById(t+'-area-tag').innerHTML=`👤 <span>${rol}</span>`;
+  }
   document.getElementById(t+'-area-wrap').style.display='block';
 
-  // Cargar productos
+  // Cargar productos — usa STAFF si existe, si no deja solo "Otro"
   const sel=document.getElementById(t+'-producto');
+  const prods=info?info.prods:[];
   sel.innerHTML='<option value="">— Seleccionar producto —</option>'+
-    info.prods.map(p=>`<option>${p}</option>`).join('')+
+    prods.map(p=>`<option>${p}</option>`).join('')+
     '<option value="__otro__">✏️ Otro (escribir)...</option>';
   document.getElementById(t+'-otro-wrap').style.display='none';
   if(t==='b'){document.getElementById('b-otro-txt').value='';}
@@ -1254,7 +1267,7 @@ function confirmarBaja(){
   const cant=parseFloat(document.getElementById('b-cantidad').value);
   const unid=document.getElementById('b-unidad').value;
   const obs=document.getElementById('b-obs').value.trim();
-  const area=STAFF.bajas[enc]?.area||'';
+  const area=STAFF.bajas[enc]?.area||ENCARGADOS[enc]?.rol||'';
   if(!local||!enc||!prod||!cant||!motivoSel){showToast('⚠️ Completa todos los campos');return;}
   pendiente={tipo:'baja',local,enc,area,prod,cant,unid,motivo:motivoSel,obs};
   document.getElementById('modal-title').textContent='Confirmar baja';
@@ -1272,7 +1285,7 @@ function confirmarProd(){
   const cant=parseFloat(document.getElementById('p-cantidad').value);
   const unid=document.getElementById('p-unidad').value;
   const obs=document.getElementById('p-obs').value.trim();
-  const area=STAFF.prod[enc]?.area||'';
+  const area=STAFF.prod[enc]?.area||ENCARGADOS[enc]?.rol||'';
   if(!local||!enc||!prod||!cant||!turnoSel){showToast('⚠️ Completa todos los campos');return;}
   pendiente={tipo:'prod',local,enc,area,prod,cant,unid,turno:turnoSel,obs};
   document.getElementById('modal-title').textContent='Confirmar producción';
