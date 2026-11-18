@@ -31,6 +31,10 @@
   .nav-menu-btn:hover{background:var(--gray-1);}
 
   /* ── BOTTOM TAB BAR (mobile) ── */
+  .local-bar{position:fixed;bottom:calc(56px + env(safe-area-inset-bottom));left:0;right:0;
+    background:var(--black);color:white;text-align:center;font-size:12px;font-weight:600;
+    padding:5px 12px;z-index:99;letter-spacing:0.03em;display:none;}
+  body:not(.on-home) .local-bar{display:block;}
   .bottom-bar{position:fixed;bottom:0;left:0;right:0;background:white;
     border-top:1px solid var(--border);display:flex;z-index:100;
     padding-bottom:env(safe-area-inset-bottom);}
@@ -436,6 +440,7 @@
 </div>
 
 <!-- ── BOTTOM TAB BAR (mobile) ── -->
+<div class="local-bar" id="local-bar">📍 —</div>
 <div class="bottom-bar">
   <button class="bottom-tab" id="btab-bajas" onclick="showPage('bajas')">
     <span class="bt-icon">📉</span>Bajas
@@ -462,12 +467,11 @@
   <div style="padding-top:10px">
     <div class="section-head">
       <h2>Registrar baja</h2>
-      <p>Selecciona el local y quién reporta.</p>
+      <p>Selecciona quién reporta.</p>
     </div>
     <div class="card">
-      <!-- Local -->
-      <div class="field">
-        <label>Local <span class="req">*</span></label>
+      <!-- Local (oculto, se toma del dispositivo) -->
+      <div class="field" style="display:none">
         <select id="b-local" class="form-control" onchange="onLocalChange('b')">
           <option value="">— Seleccionar local —</option>
           <option>Orange</option>
@@ -541,8 +545,8 @@
       <p>¿Cuánto se elaboró en este turno?</p>
     </div>
     <div class="card">
-      <div class="field">
-        <label>Local <span class="req">*</span></label>
+      <!-- Local (oculto, se toma del dispositivo) -->
+      <div class="field" style="display:none">
         <select id="p-local" class="form-control" onchange="onLocalChange('p')">
           <option value="">— Seleccionar local —</option>
           <option>Orange</option>
@@ -976,13 +980,18 @@
 <!-- PROXY -->
 <script>
 function elegirLocal(local){
-  // 1. Sincronizar todos los selectores
+  // 1. Sincronizar todos los selectores ocultos
   ['b-local','p-local','clock-local','tips-local'].forEach(id=>{
     const el=document.getElementById(id);if(el)el.value=local;
   });
   // 2. Setear dispositivo.local en el módulo
   if(window._dispositivo)window._dispositivo.local=local;
-  // 3. Ir directo al módulo de pedido
+  // 3. Actualizar indicador de local en la barra inferior
+  const lb=document.getElementById('local-bar');
+  if(lb)lb.textContent='📍 '+local;
+  // 4. Disparar onLocalChange para bajas y prod (precarga encargados)
+  if(window._onLocalChange){window._onLocalChange('b');window._onLocalChange('p');}
+  // 5. Ir directo al módulo de pedido
   showPage('pedido');
 }
 function showPage(id){
@@ -1076,9 +1085,13 @@ window._showPage=function(id){
   const dt=document.getElementById(dmap[id]);if(dt)dt.classList.add('active');
   if(id==='panel'&&window._renderPanelBajas)window._renderPanelBajas();
   if(id==='pedido'){
-    // pedidoEntrar puede no estar lista si el módulo aún no terminó de parsear
     if(typeof pedidoEntrar==='function')pedidoEntrar();
     else setTimeout(()=>{if(typeof pedidoEntrar==='function')pedidoEntrar();},600);
+  }
+  // Al entrar a bajas o prod, precargar encargados del local actual
+  if(id==='bajas'||id==='prod'){
+    const t=id==='bajas'?'b':'p';
+    onLocalChange(t);
   }
 };
 
@@ -1194,6 +1207,11 @@ function showPage(id){
   document.getElementById(dmap[id])?.classList.add('active');
   if(id==='panel') renderPanelBajas();
   if(id==='pedido'){ if(window._pedidoEntrar)window._pedidoEntrar(); }
+  // Al entrar a bajas o prod, disparar onLocalChange para precargar encargados
+  if((id==='bajas'||id==='prod')&&window._onLocalChange){
+    const t=id==='bajas'?'b':'p';
+    window._onLocalChange(t);
+  }
 }
 document.body.classList.add('on-home');
 
@@ -2595,3 +2613,4 @@ console.log('[MorochoOS] Módulo cargado OK. window._showPage=', typeof window._
 </script>
 </body>
 </html>
+  
