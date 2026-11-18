@@ -2497,11 +2497,16 @@ async function stGuardar(){
 }
 
 async function stEliminar(id){
-  if(!confirm('¿Eliminar este encargado?'))return;
-  try{
-    await deleteDoc(doc(db,'settings_encargados',id));
-    showToast('✅ Eliminado');
-  } catch(e){console.error(e);showToast('❌ No se pudo eliminar');}
+  // Usar toast de confirmación en lugar de confirm() (bloqueado en algunos contextos)
+  const btn=document.querySelector(`[data-stdel="${id}"]`);
+  if(btn&&btn.dataset.confirmando){
+    try{
+      await deleteDoc(doc(db,'settings_encargados',id));
+      showToast('Eliminado');
+    } catch(e){console.error(e);showToast('No se pudo eliminar');}
+    return;
+  }
+  if(btn){btn.dataset.confirmando='1';btn.textContent='¿Seguro?';btn.style.background='#C0021B';btn.style.color='white';setTimeout(()=>{if(btn){delete btn.dataset.confirmando;btn.textContent='✕';btn.style.background='';btn.style.color='';}},3000);}
 }
 
 function stSincronizarEncargados(encargados){
@@ -2560,6 +2565,6 @@ window._marcarTurno=marcarTurno;window._selChipTips=selChipTips;
 window._confirmarTips=confirmarTips;window._guardarTips=guardarTips;
 window._guardar=guardar;
 console.log('[MorochoOS] Módulo cargado OK. window._showPage=', typeof window._showPage);
-
+</script>
 </body>
 </html>
