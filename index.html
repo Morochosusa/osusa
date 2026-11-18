@@ -1058,6 +1058,7 @@ let bLocal='todos', bArea='todos', pLocal='todos';
 // ── VARIABLES CRÍTICAS: definir antes que cualquier código que pueda fallar ──
 let dispositivo={local:''};
 window._dispositivo=dispositivo;
+const ENCARGADOS={};   // nombre → {local:'Orange', modulos:[], rol:''}
 
 // ── EXPONER showPage TEMPRANO (antes de cualquier código que pueda fallar) ──
 window._showPage=function(id){
@@ -1140,6 +1141,20 @@ onSnapshot(query(collection(db,'bajas'),orderBy('fecha','desc')), snap=>{
 onSnapshot(query(collection(db,'producciones'),orderBy('fecha','desc')), snap=>{
   producciones=snap.docs.map(d=>({id:d.id,...d.data()}));
   if(document.getElementById('sub-prod').style.display!=='none'&&document.getElementById('page-panel').classList.contains('active')) renderPanelProd();
+});
+// Cargar encargados de Settings al inicio (no esperar a que abran la pestaña Settings)
+onSnapshot(collection(db,'settings_encargados'), snap=>{
+  const lista=snap.docs.map(d=>({id:d.id,...d.data()}));
+  // Actualizar ENCARGADOS global
+  Object.keys(ENCARGADOS).forEach(k=>delete ENCARGADOS[k]);
+  lista.forEach(e=>{ENCARGADOS[e.nombre]={local:e.local,modulos:e.modulos||[],rol:e.rol||''};});
+  // Si hay un local ya seleccionado en bajas o prod, actualizar el dropdown de encargados
+  ['b','p'].forEach(t=>{
+    const localEl=document.getElementById(t+'-local');
+    if(localEl&&localEl.value) onLocalChange(t);
+  });
+  // Si Settings está abierto, también actualizar su lista
+  if(typeof stRenderLista==='function') stRenderLista(lista);
 });
 
 // ── HELPERS ──
@@ -1621,7 +1636,6 @@ async function guardarTips(){
 // ═══════════════════════════════════════════════════════════
 const TOAST_OK=/⚠️|❌|📴|🔒|no se pudo|incorrecto|sin conexión/i;
 const estKey=a=>String(a||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'general';
-const ENCARGADOS={};   // nombre → {local:'Orange', ...}
 function encargadosDeLocal(canon){return Object.keys(ENCARGADOS).filter(n=>ENCARGADOS[n].local===canon);}
 function renderInv(){} function pintarInvTabs(){} const invStock={}; function renderSim(){}
 // dispositivo ya declarado al inicio del módulo
